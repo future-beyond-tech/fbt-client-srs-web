@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shree Ramalingam Sons Billing Prototype
 
-## Getting Started
+Production-style frontend prototype for a vehicle dealership billing workflow (bike and car buying/selling), built with Next.js App Router, Tailwind CSS, and JavaScript.
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js 16 (App Router)
+- React 19
+- Tailwind CSS
+- JavaScript (no TypeScript code)
+
+## Folder Structure
+
+```text
+.
+├── app/
+│   ├── billing/page.js
+│   ├── customers/page.js
+│   ├── invoice/page.js
+│   ├── vehicles/page.js
+│   ├── globals.css
+│   ├── layout.js
+│   └── page.js
+├── components/
+│   ├── forms/
+│   │   ├── FormInput.js
+│   │   ├── FormSelect.js
+│   │   └── FormTextarea.js
+│   ├── layout/
+│   │   ├── AppShell.js
+│   │   ├── Navbar.js
+│   │   └── Sidebar.js
+│   └── ui/
+│       ├── EmptyState.js
+│       ├── ResponsiveTable.js
+│       ├── SectionHeader.js
+│       ├── StatCard.js
+│       └── StatusBadge.js
+├── features/
+│   ├── billing/BillingContext.js
+│   ├── data/staticData.js
+│   └── utils/formatters.js
+├── styles/
+│   ├── print.css
+│   └── theme.css
+├── eslint.config.mjs
+├── jsconfig.json
+├── next.config.mjs
+├── postcss.config.mjs
+└── tailwind.config.js
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features Implemented
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Responsive dashboard with cards:
+  - Total Vehicles
+  - Vehicles Sold
+  - Total Revenue
+  - Today’s Revenue
+- Vehicles page:
+  - Static vehicle list
+  - Add vehicle form
+  - Mobile-friendly stacked table cards
+- Customers page:
+  - Static customer list
+  - Add customer form
+  - Fully responsive layout
+- Billing page:
+  - Customer dropdown
+  - Available vehicle dropdown
+  - Auto-filled selling price
+  - GST toggle (18%)
+  - Payment mode selector
+  - Live total calculation
+- Invoice preview page:
+  - Printable invoice layout
+  - Business details, customer details, vehicle details
+  - GST and final total breakdown
+  - Date and invoice number
+  - Print button with print-optimized CSS
+- Shared shell layout:
+  - Sidebar (desktop)
+  - Collapsible mobile menu (small screens)
+  - Top navbar
+  - Footer: `Powered by Future Beyond Tech`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Run Locally
 
-## Learn More
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open `http://localhost:3000`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Production Build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run build
+npm run start
+```
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

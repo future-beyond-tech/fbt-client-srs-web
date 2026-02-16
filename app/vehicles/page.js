@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import FormInput from "@/components/forms/FormInput";
 import FormSelect from "@/components/forms/FormSelect";
 import SectionHeader from "@/components/ui/SectionHeader";
@@ -18,6 +19,17 @@ const defaultVehicleForm = {
   sellingPrice: "",
   status: "Available",
 };
+
+const VEHICLE_IMAGE_BY_TYPE = {
+  car: "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=320&h=200&fit=crop&dpr=1",
+  bike:
+    "https://images.pexels.com/photos/2611690/pexels-photo-2611690.jpeg?auto=compress&cs=tinysrgb&w=320&h=200&fit=crop&dpr=1",
+};
+
+function getVehicleImageUrl(vehicle) {
+  const typeKey = String(vehicle.type ?? "").trim().toLowerCase();
+  return VEHICLE_IMAGE_BY_TYPE[typeKey] ?? VEHICLE_IMAGE_BY_TYPE.car;
+}
 
 export default function VehiclesPage() {
   const { vehicles, addVehicle } = useBilling();
@@ -37,6 +49,20 @@ export default function VehiclesPage() {
   };
 
   const columns = [
+    {
+      key: "image",
+      label: "Vehicle Image",
+      render: (row) => (
+        <Image
+          src={getVehicleImageUrl(row)}
+          alt={`${row.brand} ${row.model}`}
+          width={96}
+          height={64}
+          className="h-16 w-24 rounded-md border border-slate-200 object-cover"
+          unoptimized
+        />
+      ),
+    },
     { key: "type", label: "Type" },
     { key: "brand", label: "Brand" },
     { key: "model", label: "Model" },

@@ -1,0 +1,27 @@
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  .app-sidebar,
+  .app-navbar,
+  .app-footer,
+  .no-print {
+    display: none !important;
+  }
+
+  .app-content {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .invoice-shell {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+}

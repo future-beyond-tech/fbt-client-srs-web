@@ -1,0 +1,15 @@
+:root {
+  --app-bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface-soft: #f8fbff;
+  --primary: #1d4ed8;
+  --primary-soft: #dbeafe;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --border-color: #dbe3ef;
+}
+
+::selection {
+  background: #bfdbfe;
+  color: #0f172a;
+}

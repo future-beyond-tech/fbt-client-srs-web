@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import VehicleDropdown from "@/components/ui/VehicleDropdown";
 import PaymentSection from "@/components/ui/PaymentSection";
 import PhotoUpload from "@/components/ui/PhotoUpload";
+import { isRequestCanceled } from "@/services/error-handler";
 import { PAYMENT_MODE, type PaymentMode } from "@/types/enums";
 import { createSale } from "@/services/sales.service";
 import { getAvailableVehicles } from "@/services/vehicle.service";
@@ -149,7 +150,7 @@ export default function SaleForm() {
       const list = await getAvailableVehicles(signal);
       setVehicles(list);
     } catch (requestError) {
-      if (requestError instanceof DOMException && requestError.name === "AbortError") {
+      if (isRequestCanceled(requestError)) {
         return;
       }
 

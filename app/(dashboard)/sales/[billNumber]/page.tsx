@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import BillLayout from "@/components/bill/BillLayout";
+import { isRequestCanceled } from "@/services/error-handler";
 import { getSaleByBillNumber } from "@/services/sales.service";
 import type { SaleDetails } from "@/types/sale";
 
@@ -92,7 +93,7 @@ export default function SaleBillPage() {
         const response = await getSaleByBillNumber(billNumber, signal);
         setSale(response);
       } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
+        if (isRequestCanceled(error)) {
           return;
         }
 

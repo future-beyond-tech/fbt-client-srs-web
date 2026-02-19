@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import SearchResultsTable from "@/components/tables/SearchResultsTable";
 import SearchInput from "@/components/ui/SearchInput";
 import useDebounce from "@/hooks/useDebounce";
+import { isRequestCanceled } from "@/services/error-handler";
 import { search } from "@/services/search.service";
 import type { SearchResult } from "@/types/search";
 
@@ -78,7 +79,7 @@ export default function SearchPage() {
         setResults((current) => (areSearchResultsEqual(current, response) ? current : response));
       })
       .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === "AbortError") {
+        if (isRequestCanceled(error)) {
           return;
         }
 

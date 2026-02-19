@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { compressImage } from "@/lib/imageCompression";
+import { isRequestCanceled } from "@/services/error-handler";
 import { uploadPhoto } from "@/services/upload.service";
 import {
   ACCEPTED_IMAGE_TYPES,
@@ -209,7 +210,7 @@ export default function PhotoUpload({
           return;
         }
 
-        if (uploadError instanceof DOMException && uploadError.name === "AbortError") {
+        if (isRequestCanceled(uploadError)) {
           return;
         }
 

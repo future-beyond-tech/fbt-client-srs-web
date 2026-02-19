@@ -2,25 +2,12 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { buildApiUrl } from "@/lib/utils";
+import { login } from "@/services/auth.service";
 
 type LoginPayload = {
   username: string;
   password: string;
 };
-
-type LoginResponse = {
-  token?: string;
-  message?: string;
-};
-
-const TEST_USERNAME = "admin";
-const TEST_PASSWORD = "admin123";
-const TEST_TOKEN = "test-token";
-
-function setClientToken(token: string) {
-  document.cookie = `token=${token}; Path=/; Max-Age=28800; SameSite=Lax`;
-}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -40,40 +27,18 @@ export default function LoginPage() {
       return;
     }
 
-    if (username === TEST_USERNAME && password === TEST_PASSWORD) {
-      setClientToken(TEST_TOKEN);
-      router.replace("/dashboard");
-      return;
-    }
-
     setIsLoading(true);
     setError("");
 
     try {
-      const response = await fetch(buildApiUrl("/auth/login"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ username, password }),
-      });
-
-      const payload = (await response.json().catch(() => ({}))) as LoginResponse;
-
-      if (!response.ok) {
-        setError(payload.message || "Invalid username or password.");
-        return;
-      }
-
-      if (payload.token) {
-        setClientToken(payload.token);
-      }
-
+      await login({ username, password });
       router.replace("/dashboard");
-    } catch {
-      setError("Unable to connect. Please try again.");
+    } catch (requestError) {
+      const message =
+        requestError instanceof Error
+          ? requestError.message
+          : "Unable to login. Please try again.";
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -149,11 +114,6 @@ export default function LoginPage() {
             >
               {isLoading ? "Signing in..." : "Login"}
             </button>
-
-            <p className="text-center text-xs text-gray-500">
-              Test: <span className="font-semibold">admin</span> /{" "}
-              <span className="font-semibold">admin123</span>
-            </p>
           </form>
         </section>
       </div>

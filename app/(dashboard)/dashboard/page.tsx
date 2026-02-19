@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import DashboardCards from "@/components/dashboard/DashboardCards";
 import { getDashboardSummary, type DashboardSummary } from "@/services/dashboard.service";
+import { isRequestCanceled } from "@/services/error-handler";
 
 const initialSummary: DashboardSummary = {
   totalVehiclesPurchased: 0,
@@ -38,7 +39,7 @@ export default function DashboardPage() {
       const response = await getDashboardSummary(signal);
       setSummary(response);
     } catch (requestError) {
-      if (requestError instanceof DOMException && requestError.name === "AbortError") {
+      if (isRequestCanceled(requestError)) {
         return;
       }
 

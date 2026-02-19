@@ -1,112 +1,114 @@
-import { buildApiUrl, fetchWithTimeout, parseNumber, parseText } from "@/lib/utils";
+import type { AxiosRequestConfig } from "axios";
+import { api } from "@/services/api";
+import { handleApiRequest } from "@/services/error-handler";
+import type {
+  PurchaseCreateDto,
+  PurchaseCreateResponseDto,
+  PurchaseResponseDto,
+} from "@/types/api";
 import type { CreatePurchaseInput, Purchase } from "@/types/purchase";
 
-type ApiErrorResponse = {
-  message?: string;
-  title?: string;
-};
-
-type RawPurchase = Partial<Purchase> & {
-  id?: number | string;
-  vehicleId?: number | string;
-  year?: number | string;
-  sellingPrice?: number | string;
-  buyingCost?: number | string;
-  expense?: number | string;
-};
-
-function normalizePurchase(item: RawPurchase): Purchase {
+function toCreatePurchaseDto(input: CreatePurchaseInput): PurchaseCreateDto {
   return {
-    id: parseNumber(item.id),
-    vehicleId: parseNumber(item.vehicleId),
-    brand: parseText(item.brand),
-    model: parseText(item.model),
-    year: parseNumber(item.year),
-    registrationNumber: parseText(item.registrationNumber),
-    sellingPrice: parseNumber(item.sellingPrice),
-    sellerName: parseText(item.sellerName),
-    sellerPhone: parseText(item.sellerPhone),
-    sellerAddress: parseText(item.sellerAddress),
-    buyingCost: parseNumber(item.buyingCost),
-    expense: parseNumber(item.expense),
-    purchaseDate: parseText(item.purchaseDate),
-    createdAt: parseText(item.createdAt),
+    brand: input.brand,
+    model: input.model,
+    year: input.year,
+    registrationNumber: input.registrationNumber,
+    chassisNumber: input.chassisNumber || "",
+    engineNumber: input.engineNumber || "",
+    sellingPrice: input.sellingPrice,
+    sellerName: input.sellerName,
+    sellerPhone: input.sellerPhone,
+    sellerAddress: input.sellerAddress || "",
+    buyingCost: input.buyingCost,
+    expense: input.expense,
+    purchaseDate: input.purchaseDate,
   };
 }
 
-async function parseError(response: Response, fallbackMessage: string): Promise<Error> {
-  let message = fallbackMessage;
-
-  try {
-    const payload = (await response.json()) as ApiErrorResponse;
-    if (payload.message) {
-      message = payload.message;
-    } else if (payload.title) {
-      message = payload.title;
-    }
-  } catch {
-    // Ignore JSON parsing errors for error payloads.
-  }
-
-  return new Error(message);
+function mapPurchase(dto: PurchaseResponseDto): Purchase {
+  return {
+    id: Number(dto.id) || 0,
+    vehicleId: Number(dto.vehicleId) || 0,
+    brand: dto.brand || "",
+    model: dto.model || "",
+    year: Number(dto.year) || 0,
+    registrationNumber: dto.registrationNumber || "",
+    sellingPrice: Number(dto.sellingPrice) || 0,
+    sellerName: dto.sellerName || "",
+    sellerPhone: dto.sellerPhone || "",
+    sellerAddress: dto.sellerAddress || "",
+    buyingCost: Number(dto.buyingCost) || 0,
+    expense: Number(dto.expense) || 0,
+    purchaseDate: dto.purchaseDate || "",
+    createdAt: dto.createdAt || "",
+  };
 }
 
 export async function createPurchase(payload: CreatePurchaseInput): Promise<Purchase> {
-  const response = await fetchWithTimeout(buildApiUrl("/purchases"), {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
+  return handleApiRequest(
+    async () => {
+      const dto = toCreatePurchaseDto(payload);
+      const response = await api.post<PurchaseResponseDto | PurchaseCreateResponseDto>(
+        "/api/purchases",
+        dto,
+      );
+
+      if ("vehicleId" in response.data && !("id" in response.data)) {
+        const created = response.data as PurchaseCreateResponseDto;
+        return {
+          id: 0,
+          vehicleId: Number(created.vehicleId) || 0,
+          brand: payload.brand,
+          model: payload.model,
+          year: payload.year,
+          registrationNumber: payload.registrationNumber,
+          sellingPrice: payload.sellingPrice,
+          sellerName: payload.sellerName,
+          sellerPhone: payload.sellerPhone,
+          sellerAddress: payload.sellerAddress || "",
+          buyingCost: payload.buyingCost,
+          expense: payload.expense,
+          purchaseDate: payload.purchaseDate,
+          createdAt: "",
+        };
+      }
+
+      return mapPurchase(response.data as PurchaseResponseDto);
     },
-    body: JSON.stringify(payload),
-    timeout: 8000,
-  });
-
-  if (!response.ok) {
-    throw await parseError(response, "Unable to create purchase.");
-  }
-
-  const data = (await response.json()) as RawPurchase;
-  return normalizePurchase(data);
+    {
+      successMessage: "Purchase created successfully.",
+      errorMessage: "Unable to create purchase.",
+    },
+  );
 }
 
 export async function getPurchases(signal?: AbortSignal): Promise<Purchase[]> {
-  const response = await fetchWithTimeout(buildApiUrl("/purchases"), {
-    method: "GET",
-    credentials: "include",
-    headers: { Accept: "application/json" },
-    cache: "no-store",
-    signal,
-    timeout: 8000,
-  });
-
-  if (!response.ok) {
-    throw await parseError(response, "Unable to fetch purchases.");
-  }
-
-  const data = (await response.json()) as RawPurchase[];
-  if (!Array.isArray(data)) {
-    return [];
-  }
-
-  return data.map((item) => normalizePurchase(item)).filter((item) => item.id > 0);
+  return handleApiRequest(
+    async () => {
+      const config: AxiosRequestConfig = { signal };
+      const response = await api.get<PurchaseResponseDto[]>("/api/purchases", config);
+      return (Array.isArray(response.data) ? response.data : [])
+        .map(mapPurchase)
+        .filter((item) => item.id > 0);
+    },
+    {
+      silent: true,
+      errorMessage: "Unable to fetch purchases.",
+    },
+  );
 }
 
 export async function getPurchaseById(id: number, signal?: AbortSignal): Promise<Purchase> {
-  const response = await fetchWithTimeout(buildApiUrl(`/purchases/${encodeURIComponent(String(id))}`), {
-    method: "GET",
-    credentials: "include",
-    headers: { Accept: "application/json" },
-    cache: "no-store",
-    signal,
-    timeout: 8000,
-  });
-
-  if (!response.ok) {
-    throw await parseError(response, "Unable to fetch purchase details.");
-  }
-
-  const data = (await response.json()) as RawPurchase;
-  return normalizePurchase(data);
+  return handleApiRequest(
+    async () => {
+      const config: AxiosRequestConfig = { signal };
+      const response = await api.get<PurchaseResponseDto>(`/api/purchases/${id}`, config);
+      return mapPurchase(response.data);
+    },
+    {
+      silent: true,
+      errorMessage: "Unable to fetch purchase details.",
+    },
+  );
 }

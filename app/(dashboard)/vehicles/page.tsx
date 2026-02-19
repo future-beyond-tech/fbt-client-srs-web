@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import VehicleTable from "@/components/tables/VehicleTable";
 import Pagination from "@/components/ui/Pagination";
+import { isRequestCanceled } from "@/services/error-handler";
 import { getVehicles } from "@/services/vehicle.service";
 import type { Vehicle } from "@/types/vehicle";
 
@@ -24,7 +25,7 @@ export default function VehiclesPage() {
       const list = await getVehicles(signal);
       setVehicles(list);
     } catch (requestError) {
-      if (requestError instanceof DOMException && requestError.name === "AbortError") {
+      if (isRequestCanceled(requestError)) {
         return;
       }
 

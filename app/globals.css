@@ -10,6 +10,8 @@ html,
 body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  overflow-x: clip;
 }
 
 body {
@@ -17,6 +19,7 @@ body {
   background-color: var(--app-bg);
   color: var(--text-main);
   font-family: var(--font-manrope), "Segoe UI", sans-serif;
+  -webkit-text-size-adjust: 100%;
 }
 
 a {

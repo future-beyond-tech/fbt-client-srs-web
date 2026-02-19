@@ -1,7 +1,6 @@
 import { Manrope } from "next/font/google";
 import "./globals.css";
 import AppShell from "@/components/layout/AppShell";
-import { BillingProvider } from "@/features/billing/BillingContext";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -10,17 +9,15 @@ const manrope = Manrope({
 });
 
 export const metadata = {
-  title: "Shree Ramalingam Sons | Dealership Billing",
-  description: "Frontend billing prototype for bike and car dealership workflow",
+  title: "SRS Dealership | Billing & Inventory",
+  description: "Production frontend for SRS Vehicle Dealership Billing & Inventory System",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${manrope.variable} antialiased`}>
-        <BillingProvider>
-          <AppShell>{children}</AppShell>
-        </BillingProvider>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

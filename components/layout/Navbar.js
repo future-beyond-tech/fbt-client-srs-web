@@ -1,13 +1,45 @@
 "use client";
 
+import { useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { logout } from "@/lib/auth";
+
+const titleMap = [
+  { path: "/dashboard", title: "Dashboard" },
+  { path: "/purchases", title: "Purchases" },
+  { path: "/vehicles", title: "Vehicles" },
+  { path: "/billing", title: "Billing" },
+  { path: "/search", title: "Search" },
+  { path: "/sales", title: "Bill View" },
+];
+
 export default function Navbar({ onMenuClick }) {
+  const pathname = usePathname();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const pageTitle = useMemo(() => {
+    const matched = titleMap.find(
+      (item) => pathname === item.path || pathname.startsWith(`${item.path}/`),
+    );
+    return matched?.title ?? "SRS Dealership";
+  }, [pathname]);
+
+  const handleLogout = async () => {
+    if (isLoggingOut) {
+      return;
+    }
+
+    setIsLoggingOut(true);
+    await logout();
+  };
+
   return (
-    <header className="app-navbar sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-10">
+    <header className="app-navbar sticky top-0 z-30 border-b border-gray-200 bg-white shadow-sm">
+      <div className="flex h-16 items-center justify-between px-4 sm:px-6">
         <button
           type="button"
           onClick={onMenuClick}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-700 lg:hidden"
+          className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-gray-300 text-gray-700 lg:hidden"
           aria-label="Open navigation"
         >
           <svg
@@ -21,15 +53,21 @@ export default function Navbar({ onMenuClick }) {
           </svg>
         </button>
 
-        <div className="flex-1 lg:flex-none">
-          <h1 className="truncate text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
-            Shree Ramalingam Sons Billing
+        <div className="min-w-0 flex-1 lg:flex-none">
+          <h1 className="truncate text-base font-semibold tracking-tight text-gray-900 sm:text-lg">
+            {pageTitle}
           </h1>
         </div>
 
-        <div className="hidden rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 sm:block">
-          Dealership Workflow Demo
-        </div>
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70"
+          aria-label="Logout"
+        >
+          {isLoggingOut ? "Logging out..." : "Logout"}
+        </button>
       </div>
     </header>
   );

@@ -1,30 +1,36 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
 
 export default function AppShell({ children }) {
+  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  if (pathname === "/login") {
+    return <div className="min-h-screen bg-gray-50">{children}</div>;
+  }
+
   return (
-    <div className="app-shell min-h-screen overflow-x-hidden bg-slate-50">
+    <div className="app-shell min-h-screen overflow-x-hidden bg-gray-50">
       <div className="flex min-h-screen">
-        <aside className="app-sidebar hidden w-72 flex-none border-r border-slate-200 bg-white lg:flex lg:flex-col">
+        <aside className="app-sidebar hidden w-64 flex-none bg-gray-900 lg:flex lg:flex-col">
           <Sidebar />
         </aside>
 
-        {isMobileMenuOpen && (
+        {isMobileMenuOpen ? (
           <button
             type="button"
-            className="fixed inset-0 z-40 bg-slate-900/40 lg:hidden"
+            className="fixed inset-0 z-40 bg-gray-900/50 lg:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-label="Close navigation"
           />
-        )}
+        ) : null}
 
         <aside
-          className={`fixed inset-y-0 left-0 z-50 w-72 transform border-r border-slate-200 bg-white transition-transform duration-300 lg:hidden ${
+          className={`app-sidebar fixed inset-y-0 left-0 z-50 w-64 transform bg-gray-900 transition-transform duration-300 lg:hidden ${
             isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -34,13 +40,9 @@ export default function AppShell({ children }) {
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <Navbar onMenuClick={() => setIsMobileMenuOpen(true)} />
 
-          <main className="app-content flex-1 px-4 py-6 sm:px-6 lg:px-10">
+          <main className="app-content min-w-0 flex-1">
             <div className="mx-auto w-full max-w-7xl">{children}</div>
           </main>
-
-          <footer className="app-footer border-t border-slate-200 bg-white px-4 py-4 text-center text-xs font-medium text-slate-500 sm:px-6 lg:px-10">
-            Powered by Future Beyond Tech
-          </footer>
         </div>
       </div>
     </div>
